@@ -17,4 +17,4 @@ spring:
         - id: KF-FRONTEND-SERVICE
           uri: http://localhost:3000
           predicates:
-            - Path=/console/**,/_next/**
+            - Path=/,/console/**,/_next/**
