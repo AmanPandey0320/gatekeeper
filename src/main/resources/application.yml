@@ -17,4 +17,19 @@ spring:
         - id: KF-FRONTEND-SERVICE
           uri: http://localhost:3000
           predicates:
-            - Path=/,/console/**,/_next/**
+            - Path=/_next/**
+        - id: KF-HOME-SERVICE
+          uri: http://localhost:3000
+          predicates:
+            - Path=/
+        - id: KF-CONSOLE-SERVICE
+          uri: http://localhost:3000
+          predicates:
+            - Path=/console/**
+
+config:
+  protectedRoutes:
+    enabled: true
+    routes:
+      - id: console
+        path: /console/**
