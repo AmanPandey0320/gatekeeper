@@ -36,6 +36,15 @@ public class ProtectedRouteConfig {
 
 
 
+	@Override
+	public String toString() {
+		return "ProtectedRouteConfig [enabled=" + enabled + ", routes=" + routes + "]";
+	}
+
+
+
+
+
 	public static class Route {
         private String id;
         private String path;
@@ -55,5 +64,12 @@ public class ProtectedRouteConfig {
         public void setPath(String path) {
             this.path = path;
         }
+
+		@Override
+		public String toString() {
+			return "Route [id=" + id + ", path=" + path + "]";
+		}
+        
+        
     }
 }
