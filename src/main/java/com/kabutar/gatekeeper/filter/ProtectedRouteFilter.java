@@ -32,7 +32,7 @@ public class ProtectedRouteFilter implements GlobalFilter,Ordered {
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 		// make http request to check resource
 		return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-			System.out.println("Gateway filter executed");
+//			System.out.println("Gateway filter executed");
 		}));
 	}
 	

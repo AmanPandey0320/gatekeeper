@@ -17,7 +17,7 @@ spring:
         - id: KF-FRONTEND-SERVICE
           uri: http://localhost:3000
           predicates:
-            - Path=/_next/**
+            - Path=/_next/**,/__nextjs_**,/__nextjs_font/**
         - id: KF-HOME-SERVICE
           uri: http://localhost:3000
           predicates:
