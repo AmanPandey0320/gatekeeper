@@ -2,10 +2,10 @@ package com.kabutar.gatekeeper.filter;
 
 import java.net.URI;
 
-import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -14,9 +14,11 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class UriReplaceFilterFactory implements GlobalFilter, Ordered {
+    private static Logger logger = LogManager.getLogger(UriReplaceFilterFactory.class);
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        logger.debug("Entering UriReplaceFilter...");
         URI originalUri = exchange.getRequest().getURI();
         String rawPath = originalUri.getRawPath();
 
@@ -32,14 +34,15 @@ public class UriReplaceFilterFactory implements GlobalFilter, Ordered {
             ServerHttpRequest newRequest = exchange.getRequest().mutate().uri(newUri).build();
             ServerWebExchange mutatedExchange = exchange.mutate().request(newRequest).build();
 
+            logger.debug("Exiting UriReplaceFilter...");
             return chain.filter(mutatedExchange);
         }
-
+        logger.debug("Exiting UriReplaceFilter...");
         return chain.filter(exchange);
     }
 
     @Override
     public int getOrder() {
-        return 100;
+        return FilterOrder.URI_REPLACE_FILTER_ORDER;
     }
 }

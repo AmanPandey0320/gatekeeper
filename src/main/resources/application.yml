@@ -10,18 +10,14 @@ spring:
         uri-encoding: UTF-8
         strict-uri-validation: false
       routes:
-        - id: KF-BACKEND-SERVICE
-          uri: http://localhost:8080
+        - id: default
+          uri: https://jsonplaceholder.typicode.com
           predicates:
-            - Path=/api/**
-        - id: KF-FRONTEND-SERVICE
-          uri: http://localhost:3000
-          predicates:
-            - Path=/**
+            - Path=/todos/**
 
 config:
   protectedRoutes:
-    enabled: true
+    enabled: false
     routes:
       - id: console
         path: /console/**
