@@ -16,6 +16,14 @@ spring:
             - Path=/todos/**
 
 config:
+  rateLimited:
+    enabled: true
+    algorithm: TB
+    rules:
+      - id: default
+        resourcePath: /**
+        unit: D
+        limitPerUnit: 1000
   protectedRoutes:
     enabled: false
     routes:
