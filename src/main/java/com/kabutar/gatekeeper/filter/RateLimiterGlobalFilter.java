@@ -1,6 +1,7 @@
 package com.kabutar.gatekeeper.filter;
 
 import com.kabutar.gatekeeper.ratelimiter.algorithm.RateLimiter;
+import com.kabutar.gatekeeper.ratelimiter.factory.RateLimiterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -15,11 +16,12 @@ import reactor.core.publisher.Mono;
 public class RateLimiterGlobalFilter implements GlobalFilter, Ordered {
 
     @Autowired
-    RateLimiter rateLimiter;
+    RateLimiterFactory rateLimiterFactory;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        if(rateLimiter.isRateLimited(exchange)){
+        RateLimiter rateLimiter = rateLimiterFactory.get(exchange);
+        if(!rateLimiter.allocate(exchange)){
             return rateLimiter.handleRateLimited(exchange);
         }
         return chain.filter(exchange);

@@ -18,12 +18,21 @@ spring:
 config:
   rateLimited:
     enabled: true
-    algorithm: TB
+    algorithm: tokenBucket
+    strategy: drop
     rules:
       - id: default
+        algorithm: tokenBucket
+        config:
+          tokenBucket:
+            capacity: 100
+            refillRate: 10
+            refillUnit: S
         resourcePath: /**
-        unit: D
-        limitPerUnit: 1000
+        limitBy:
+          - ip
+          - user
+          - route
   protectedRoutes:
     enabled: false
     routes:

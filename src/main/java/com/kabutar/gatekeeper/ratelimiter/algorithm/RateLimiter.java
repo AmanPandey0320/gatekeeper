@@ -10,7 +10,7 @@ public interface RateLimiter {
      * @param exchange
      * @return
      */
-    boolean isRateLimited(ServerWebExchange exchange);
+    boolean allocate(ServerWebExchange exchange);
 
     /**
      * defines how rate limited requests will be handled

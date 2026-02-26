@@ -10,6 +10,7 @@ import java.util.List;
 public class RateLimitedConfig {
     private boolean enabled;
     private String algorithm;
+    private String strategy;
     private List<Rule> rules;
 
     public boolean isEnabled() {
@@ -36,20 +37,88 @@ public class RateLimitedConfig {
         this.rules = rules;
     }
 
+    public String getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(String strategy) {
+        this.strategy = strategy;
+    }
+
     @Override
     public String toString() {
         return "RateLimitedConfig{" +
                 "enabled=" + enabled +
                 ", algorithm='" + algorithm + '\'' +
+                ", strategy='" + strategy + '\'' +
                 ", rules=" + rules +
                 '}';
+    }
+
+    public static class Config{
+        private TokenBucket tokenBucket;
+
+        public TokenBucket getTokenBucket() {
+            return tokenBucket;
+        }
+
+        public void setTokenBucket(TokenBucket tokenBucket) {
+            this.tokenBucket = tokenBucket;
+        }
+
+        @Override
+        public String toString() {
+            return "Config{" +
+                    "tokenBucket=" + tokenBucket +
+                    '}';
+        }
+    }
+
+    public static class TokenBucket{
+        private int capacity;
+        private int refillRate;
+        private String refillUnit;
+
+        public int getCapacity() {
+            return capacity;
+        }
+
+        public void setCapacity(int capacity) {
+            this.capacity = capacity;
+        }
+
+        public int getRefillRate() {
+            return refillRate;
+        }
+
+        public void setRefillRate(int refillRate) {
+            this.refillRate = refillRate;
+        }
+
+        public String getRefillUnit() {
+            return refillUnit;
+        }
+
+        public void setRefillUnit(String refillUnit) {
+            this.refillUnit = refillUnit;
+        }
+
+        @Override
+        public String toString() {
+            return "TokenBucket{" +
+                    "capacity=" + capacity +
+                    ", refillRate=" + refillRate +
+                    ", refillUnit='" + refillUnit + '\'' +
+                    '}';
+        }
     }
 
     public static class Rule{
         private String id;
         private String resourcePath;
-        private String unit;
-        private String limitPerUnit;
+        private List<String> limitBy;
+        private String algorithm;
+        private Config config;
 
         public String getId() {
             return id;
@@ -67,20 +136,28 @@ public class RateLimitedConfig {
             this.resourcePath = resourcePath;
         }
 
-        public String getUnit() {
-            return unit;
+        public List<String> getLimitBy() {
+            return limitBy;
         }
 
-        public void setUnit(String unit) {
-            this.unit = unit;
+        public void setLimitBy(List<String> limitBy) {
+            this.limitBy = limitBy;
         }
 
-        public String getLimitPerUnit() {
-            return limitPerUnit;
+        public String getAlgorithm() {
+            return algorithm;
         }
 
-        public void setLimitPerUnit(String limitPerUnit) {
-            this.limitPerUnit = limitPerUnit;
+        public void setAlgorithm(String algorithm) {
+            this.algorithm = algorithm;
+        }
+
+        public Config getConfig() {
+            return config;
+        }
+
+        public void setConfig(Config config) {
+            this.config = config;
         }
 
         @Override
@@ -88,8 +165,9 @@ public class RateLimitedConfig {
             return "Rule{" +
                     "id='" + id + '\'' +
                     ", resourcePath='" + resourcePath + '\'' +
-                    ", unit='" + unit + '\'' +
-                    ", limitPerUnit='" + limitPerUnit + '\'' +
+                    ", limitBy=" + limitBy +
+                    ", algorithm='" + algorithm + '\'' +
+                    ", config=" + config +
                     '}';
         }
     }
