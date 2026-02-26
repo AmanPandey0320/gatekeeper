@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "config.protectedRoutes")
+@ConfigurationProperties(prefix = "config.protected-routes")
 public class ProtectedRouteConfig {
 	private boolean enabled;
 	private List<Route> routes;

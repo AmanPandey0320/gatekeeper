@@ -25,7 +25,7 @@ public class ProtectedRouteFilter implements GlobalFilter,Ordered {
 
 	@Override
 	public int getOrder() {
-		return FilterOrder.PROTECTED_ROUTE_FILTER_ORDER;
+		return PreGatewayFilterOrder.PROTECTED_ROUTE_FILTER_ORDER;
 	}
 
 	@Override

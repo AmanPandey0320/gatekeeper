@@ -43,6 +43,6 @@ public class UriReplaceFilterFactory implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return FilterOrder.URI_REPLACE_FILTER_ORDER;
+        return PreGatewayFilterOrder.URI_REPLACE_FILTER_ORDER;
     }
 }

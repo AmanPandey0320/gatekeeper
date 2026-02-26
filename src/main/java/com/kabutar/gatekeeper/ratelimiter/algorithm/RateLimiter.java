@@ -2,7 +2,7 @@ package com.kabutar.gatekeeper.ratelimiter.algorithm;
 
 import org.springframework.web.server.ServerWebExchange;
 
-public interface RateLimiterAlgorithm {
+public interface RateLimiter {
 
     /**
      * checks if the request is rate limited
