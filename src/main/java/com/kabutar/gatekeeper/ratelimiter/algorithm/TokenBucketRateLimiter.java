@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @Component
 @ConditionalOnProperty(prefix = "config.rate-limited", name = "algorithm", havingValue = "TB")
@@ -27,7 +28,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
     }
 
     @Override
-    public void handleRateLimited(ServerWebExchange exchange) {
-
+    public Mono<Void> handleRateLimited(ServerWebExchange exchange) {
+        return handler.handle(exchange);
     }
 }
