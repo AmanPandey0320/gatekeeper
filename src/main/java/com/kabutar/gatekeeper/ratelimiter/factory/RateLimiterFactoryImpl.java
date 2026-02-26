@@ -17,29 +17,40 @@ import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Component
 public class RateLimiterFactoryImpl implements RateLimiterFactory {
     private final static Logger logger = LogManager.getLogger(RateLimiterFactoryImpl.class);
     private final static PathPatternParser parser = new PathPatternParser();
 
-    private RateLimitedConfig rateLimitedConfig;
     private RateLimitedHandler handler;
     private RateLimiter defaultRateLimiter;
 
     private List<PathPattern> pathPatterns;
     private List<RateLimiter> rateLimiters;
 
+    private final Map<String, Function<RateLimitedConfig.Rule, RateLimiter>> ALGORITHM_REGISTRY;
+
     @Autowired
     public RateLimiterFactoryImpl(RateLimitedConfig rateLimitedConfig, RateLimitedHandler handler){
-        this.rateLimitedConfig = rateLimitedConfig;
         this.handler = handler;
 
         this.rateLimiters = new ArrayList<>();
         this.pathPatterns = new ArrayList<>();
 
+        ALGORITHM_REGISTRY = this.initializeAlgorithmMap();
         initializeDefaultRateLimiter(rateLimitedConfig);
         processRules(rateLimitedConfig);
+    }
+
+    // add new algorithms here without touching any existing logic
+    private Map<String, Function<RateLimitedConfig.Rule, RateLimiter>> initializeAlgorithmMap(){
+        return Map.of(
+                RateLimiterConstants.Algorithm.TOKEN_BUCKET, rule -> new TokenBucketRateLimiter(handler, rule)
+        );
     }
 
     /**
@@ -61,11 +72,10 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
         }
     }
 
-    // factory methods
-
     //factory method for default rate limited
     @Override
     public RateLimiter get() {
+        logger.debug("Using default rate limiter");
         return defaultRateLimiter;
     }
 
@@ -75,10 +85,12 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
         PathContainer pathContainer = exchange.getRequest().getPath().pathWithinApplication();
         for(int i=0;i<pathPatterns.size();i++){
             if(pathPatterns.get(i).matches(pathContainer)){
+                logger.debug("Found route specific rate limiter for path {}",pathContainer.value());
                 return rateLimiters.get(i);
             }
         }
-        return defaultRateLimiter;
+        logger.debug("No route specific rate limiter found for path {}",pathContainer.value());
+        return get();
     }
 
     @Override
@@ -87,10 +99,10 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
     }
 
     @Override
-    public RateLimiter init(String algorithm, Object object) {
-        if(algorithm.equals(RateLimiterConstants.Algorithm.TOKEN_BUCKET)){
-            return new TokenBucketRateLimiter(handler, (RateLimitedConfig.Rule) object);
-        }
-        throw new RateLimiterException("Invalid rate limiter algorithm: "+ algorithm);
+    public RateLimiter init(String algorithm, Object config) {
+        RateLimitedConfig.Rule rule = (RateLimitedConfig.Rule) config;
+        return Optional.ofNullable(ALGORITHM_REGISTRY.get(algorithm))
+                .map(fn -> fn.apply(rule))
+                .orElseThrow(() -> new RateLimiterException("Invalid algorithm: " + algorithm));
     }
 }
