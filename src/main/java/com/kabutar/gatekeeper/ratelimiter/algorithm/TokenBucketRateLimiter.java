@@ -3,6 +3,7 @@ package com.kabutar.gatekeeper.ratelimiter.algorithm;
 import com.kabutar.gatekeeper.config.RateLimitedConfig;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
+import com.kabutar.gatekeeper.ratelimiter.defaults.DefaultTokenRule;
 import com.kabutar.gatekeeper.ratelimiter.handler.RateLimitedHandler;
 import com.kabutar.gatekeeper.util.Units;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +28,11 @@ public class TokenBucketRateLimiter implements RateLimiter{
 
     public TokenBucketRateLimiter(RateLimitedHandler handler, RateLimitedConfig.Rule rule){
         this.handler = handler;
+
+        if(rule == null){
+            rule = DefaultTokenRule.getRule();
+        }
+
         this.config = rule.getConfig().getTokenBucket();
         this.limitByDimensions = rule.getLimitBy();
         this.buckets = new HashMap<>();
@@ -49,40 +55,43 @@ public class TokenBucketRateLimiter implements RateLimiter{
         long timeDiff = currTime - bucket.getLastFilled();
         long multiplier = timeDiff/(Units.Time.MULTIPLIER.get(config.getRefillUnit()) * 1000);
 
-        bucket.setTokens( Math.min(config.getCapacity(),multiplier*config.getRefillRate()));
-        bucket.setLastFilled(currTime);
+        if(multiplier > 0){
+            bucket.setTokens( Math.min(config.getCapacity(),bucket.getTokens() + multiplier*config.getRefillRate()));
+            bucket.setLastFilled(currTime);
+        }
     }
 
     private boolean isAllocateable(String identity, ServerWebExchange exchange){
-        Bucket bucket = this.buckets.get(identity);
-        fillBucket(bucket);
+        Bucket bucket = this.buckets.computeIfAbsent(identity, k -> new Bucket(config.getCapacity()));
+        synchronized (bucket){
+            fillBucket(bucket);
+        }
         return bucket.getTokens() > 0;
     }
 
     private void removeTokenFromBucket(String identity){
-        Bucket bucket = this.buckets.get(identity);
-        bucket.setTokens(bucket.getTokens() - 1);
+        Bucket bucket = this.buckets.computeIfAbsent(identity, k -> new Bucket(config.getCapacity()));
+        synchronized (bucket){
+            bucket.setTokens(bucket.getTokens() - 1);
+        }
     }
 
 
     @Override
     public boolean allocate(ServerWebExchange exchange) {
         logger.debug("Entering allocate method of Token bucket rate limiting algorithm");
-        synchronized (TokenBucketRateLimiter.class){
-            boolean canAllocate =  isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION,exchange);
-            for(String dimension:limitByDimensions){
-                canAllocate = canAllocate && isAllocateable(dimension,exchange);
-            }
+        boolean canAllocate =  isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION,exchange);
+        for(String dimension:limitByDimensions){
+            canAllocate = canAllocate && isAllocateable(dimension,exchange);
+        }
 
-            if(!canAllocate){
-                return false;
-            }
+        if(!canAllocate){
+            return false;
+        }
 
-            removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
-            for(String dimension:this.limitByDimensions){
-                removeTokenFromBucket(dimension);
-            }
-
+        removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
+        for(String dimension:this.limitByDimensions){
+            removeTokenFromBucket(dimension);
         }
         logger.debug("Exiting allocate method of Token bucket rate limiting algorithm");
         return true;
@@ -118,4 +127,5 @@ public class TokenBucketRateLimiter implements RateLimiter{
             this.lastFilled = lastFilled;
         }
     }
+
 }

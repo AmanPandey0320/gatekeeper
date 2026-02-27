@@ -25,9 +25,9 @@ config:
         algorithm: tokenBucket
         config:
           tokenBucket:
-            capacity: 100
-            refillRate: 10
-            refillUnit: S
+            capacity: 10
+            refillRate: 2
+            refillUnit: M
         resourcePath: /**
         limitBy:
           - ip
