@@ -32,7 +32,6 @@ config:
         limitBy:
           - ip
           - user
-          - route
   protectedRoutes:
     enabled: false
     routes:

@@ -50,6 +50,7 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
     private Map<String, Function<RateLimitedConfig.Rule, RateLimiter>> initializeAlgorithmMap(){
         return Map.of(
                 RateLimiterConstants.Algorithm.TOKEN_BUCKET, rule -> new TokenBucketRateLimiter(handler, rule)
+                //add new rate limited algorithms here
         );
     }
 

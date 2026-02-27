@@ -75,23 +75,23 @@ public class RateLimitedConfig {
     }
 
     public static class TokenBucket{
-        private int capacity;
-        private int refillRate;
+        private long capacity;
+        private long refillRate;
         private String refillUnit;
 
-        public int getCapacity() {
+        public long getCapacity() {
             return capacity;
         }
 
-        public void setCapacity(int capacity) {
+        public void setCapacity(long capacity) {
             this.capacity = capacity;
         }
 
-        public int getRefillRate() {
+        public long getRefillRate() {
             return refillRate;
         }
 
-        public void setRefillRate(int refillRate) {
+        public void setRefillRate(long refillRate) {
             this.refillRate = refillRate;
         }
 
