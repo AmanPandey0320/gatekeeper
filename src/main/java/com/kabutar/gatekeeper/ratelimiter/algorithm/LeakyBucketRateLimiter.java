@@ -45,6 +45,10 @@ public class LeakyBucketRateLimiter implements RateLimiter{
         }
     }
 
+    private void init(){
+
+    }
+
     private void validateConfig(){
         if( config.getOutFlowRate() <= 0 || config.getCapacity() <= 0){
             throw new RateLimiterException("Invalid config: " +config.toString());
@@ -53,7 +57,8 @@ public class LeakyBucketRateLimiter implements RateLimiter{
     @Override
     public boolean allocate(ServerWebExchange exchange) {
         // TODO: implement leaky bucket
-        logger.info("Leaky bucket executed");
+        logger.debug("Entering allocate method of Leaky bucket algorithm for request: {}",exchange.getRequest().getURI().getPath());
+
         return true;
     }
 

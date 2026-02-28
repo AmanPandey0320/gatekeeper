@@ -1,6 +1,7 @@
 package com.kabutar.gatekeeper.ratelimiter.algorithm;
 
 import com.kabutar.gatekeeper.config.RateLimitedConfig;
+import com.kabutar.gatekeeper.ratelimiter.IdentityResolver;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
 import com.kabutar.gatekeeper.ratelimiter.defaults.DefaultTokenRule;
@@ -72,7 +73,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
     }
 
     private void removeTokenFromBucket(String identity){
-        Bucket bucket = this.buckets.computeIfAbsent(identity, k -> new Bucket(config.getCapacity()));
+        Bucket bucket = this.buckets.get(identity);
         synchronized (bucket){
             bucket.setTokens(bucket.getTokens() - 1);
         }
@@ -95,7 +96,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
         }
         boolean canAllocate =  true;
         for(String dimension:limitByDimensions){
-            canAllocate = canAllocate && isAllocateable(dimension,exchange);
+            canAllocate = canAllocate && isAllocateable(IdentityResolver.resolve(exchange,dimension),exchange);
             if(!canAllocate){
                 logger.debug("Ratelimited request at: {} by dimension: {}",exchange.getRequest().getURI(),dimension);
                 return false;
@@ -103,7 +104,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
         }
 
         for(String dimension:this.limitByDimensions){
-            removeTokenFromBucket(dimension);
+            removeTokenFromBucket(IdentityResolver.resolve(exchange,dimension));
         }
         logger.debug("Exiting allocate method of Token bucket rate limiting algorithm");
         return true;
