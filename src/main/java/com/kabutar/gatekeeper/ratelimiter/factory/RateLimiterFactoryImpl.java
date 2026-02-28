@@ -2,6 +2,7 @@ package com.kabutar.gatekeeper.ratelimiter.factory;
 
 import com.kabutar.gatekeeper.config.RateLimitedConfig;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
+import com.kabutar.gatekeeper.ratelimiter.algorithm.LeakyBucketRateLimiter;
 import com.kabutar.gatekeeper.ratelimiter.algorithm.RateLimiter;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
 import com.kabutar.gatekeeper.ratelimiter.algorithm.TokenBucketRateLimiter;
@@ -49,7 +50,8 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
     // add new algorithms here without touching any existing logic
     private Map<String, Function<RateLimitedConfig.Rule, RateLimiter>> initializeAlgorithmMap(){
         return Map.of(
-                RateLimiterConstants.Algorithm.TOKEN_BUCKET, rule -> new TokenBucketRateLimiter(handler, rule)
+                RateLimiterConstants.Algorithm.TOKEN_BUCKET, rule -> new TokenBucketRateLimiter(handler, rule),
+                RateLimiterConstants.Algorithm.LEAKY_BUCKET, rule -> new LeakyBucketRateLimiter(handler,rule)
                 //add new rate limited algorithms here
         );
     }
@@ -70,6 +72,7 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
         for(RateLimitedConfig.Rule rule: config.getRules()){
             pathPatterns.add(parser.parse(rule.getResourcePath()));
             rateLimiters.add(this.init(rule.getAlgorithm(),rule));
+            System.out.println("hello");
         }
     }
 

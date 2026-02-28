@@ -57,6 +57,7 @@ public class RateLimitedConfig {
 
     public static class Config{
         private TokenBucket tokenBucket;
+        private LeakyBucket leakyBucket;
 
         public TokenBucket getTokenBucket() {
             return tokenBucket;
@@ -66,10 +67,19 @@ public class RateLimitedConfig {
             this.tokenBucket = tokenBucket;
         }
 
+        public LeakyBucket getLeakyBucket() {
+            return leakyBucket;
+        }
+
+        public void setLeakyBucket(LeakyBucket leakyBucket) {
+            this.leakyBucket = leakyBucket;
+        }
+
         @Override
         public String toString() {
             return "Config{" +
                     "tokenBucket=" + tokenBucket +
+                    ", leakyBucket=" + leakyBucket +
                     '}';
         }
     }
@@ -109,6 +119,45 @@ public class RateLimitedConfig {
                     "capacity=" + capacity +
                     ", refillRate=" + refillRate +
                     ", refillUnit='" + refillUnit + '\'' +
+                    '}';
+        }
+    }
+
+    public static class LeakyBucket{
+        private int capacity;
+        private int outFlowRate;
+        private String outFlowUnit;
+
+        public int getCapacity() {
+            return capacity;
+        }
+
+        public void setCapacity(int capacity) {
+            this.capacity = capacity;
+        }
+
+        public int getOutFlowRate() {
+            return outFlowRate;
+        }
+
+        public void setOutFlowRate(int outFlowRate) {
+            this.outFlowRate = outFlowRate;
+        }
+
+        public String getOutFlowUnit() {
+            return outFlowUnit;
+        }
+
+        public void setOutFlowUnit(String outFlowUnit) {
+            this.outFlowUnit = outFlowUnit;
+        }
+
+        @Override
+        public String toString() {
+            return "LeakyBucket{" +
+                    "capacity=" + capacity +
+                    ", outFlowRate=" + outFlowRate +
+                    ", outFlowUnit='" + outFlowUnit + '\'' +
                     '}';
         }
     }

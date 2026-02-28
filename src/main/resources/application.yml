@@ -13,7 +13,7 @@ spring:
         - id: default
           uri: https://jsonplaceholder.typicode.com
           predicates:
-            - Path=/todos/**
+            - Path=/**
 
 config:
   rateLimited:
@@ -21,14 +21,24 @@ config:
     algorithm: tokenBucket
     strategy: drop
     rules:
-      - id: default
+      - id: todo_rate_limiting
         algorithm: tokenBucket
         config:
           tokenBucket:
             capacity: 10
             refillRate: 2
             refillUnit: M
-        resourcePath: /**
+        resourcePath: /todos/**
+        limitBy:
+          - ip
+      - id: post_rate_limiting
+        algorithm: leakyBucket
+        config:
+          leakyBucket:
+            capacity: 10
+            outFlowRate: 2
+            outFlowUnit: M
+        resourcePath: /posts/**
         limitBy:
           - ip
   protectedRoutes:
