@@ -31,7 +31,6 @@ config:
         resourcePath: /**
         limitBy:
           - ip
-          - user
   protectedRoutes:
     enabled: false
     routes:

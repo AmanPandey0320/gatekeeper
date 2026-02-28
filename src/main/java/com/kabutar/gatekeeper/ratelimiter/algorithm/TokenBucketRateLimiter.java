@@ -40,7 +40,9 @@ public class TokenBucketRateLimiter implements RateLimiter{
         validateConfig();
 
         //initialize default route bucket
-        this.buckets.put(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, new Bucket(config.getCapacity()));
+        if(limitByDimensions.isEmpty()){
+            this.buckets.put(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, new Bucket(config.getCapacity()));
+        }
     }
 
     private void validateConfig(){
@@ -80,16 +82,26 @@ public class TokenBucketRateLimiter implements RateLimiter{
     @Override
     public boolean allocate(ServerWebExchange exchange) {
         logger.debug("Entering allocate method of Token bucket rate limiting algorithm");
-        boolean canAllocate =  isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION,exchange);
-        for(String dimension:limitByDimensions){
-            canAllocate = canAllocate && isAllocateable(dimension,exchange);
-        }
 
-        if(!canAllocate){
+        // if no limit parameter is defined
+        // use default route parameter
+        if(limitByDimensions.isEmpty()){
+            if(isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION,exchange)){
+                removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
+                return true;
+            }
+            logger.debug("Ratelimited request at: {} by dimension: {}",exchange.getRequest().getURI(),RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
             return false;
         }
+        boolean canAllocate =  true;
+        for(String dimension:limitByDimensions){
+            canAllocate = canAllocate && isAllocateable(dimension,exchange);
+            if(!canAllocate){
+                logger.debug("Ratelimited request at: {} by dimension: {}",exchange.getRequest().getURI(),dimension);
+                return false;
+            }
+        }
 
-        removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
         for(String dimension:this.limitByDimensions){
             removeTokenFromBucket(dimension);
         }
