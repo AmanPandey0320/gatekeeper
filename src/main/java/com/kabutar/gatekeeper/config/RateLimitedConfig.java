@@ -125,8 +125,7 @@ public class RateLimitedConfig {
 
     public static class LeakyBucket{
         private int capacity;
-        private int outFlowRate;
-        private String outFlowUnit;
+        private int outFlowPerSec;
 
         public int getCapacity() {
             return capacity;
@@ -136,28 +135,19 @@ public class RateLimitedConfig {
             this.capacity = capacity;
         }
 
-        public int getOutFlowRate() {
-            return outFlowRate;
+        public int getOutFlowPerSec() {
+            return outFlowPerSec;
         }
 
-        public void setOutFlowRate(int outFlowRate) {
-            this.outFlowRate = outFlowRate;
-        }
-
-        public String getOutFlowUnit() {
-            return outFlowUnit;
-        }
-
-        public void setOutFlowUnit(String outFlowUnit) {
-            this.outFlowUnit = outFlowUnit;
+        public void setOutFlowPerSec(int outFlowPerSec) {
+            this.outFlowPerSec = outFlowPerSec;
         }
 
         @Override
         public String toString() {
             return "LeakyBucket{" +
                     "capacity=" + capacity +
-                    ", outFlowRate=" + outFlowRate +
-                    ", outFlowUnit='" + outFlowUnit + '\'' +
+                    ", outFlowPerSec=" + outFlowPerSec +
                     '}';
         }
     }

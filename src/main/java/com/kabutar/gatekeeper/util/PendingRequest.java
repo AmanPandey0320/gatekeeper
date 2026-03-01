@@ -1,27 +1,22 @@
 package com.kabutar.gatekeeper.util;
 
-public class Pair<F,S> {
-    private F first;
-    private S second;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.MonoSink;
 
-    public F getFirst() {
-        return first;
+public class PendingRequest {
+    private ServerWebExchange serverWebExchange;
+    private MonoSink<Boolean> sink;
+
+    public ServerWebExchange getServerWebExchange() {
+        return serverWebExchange;
     }
 
-    public void setFirst(F first) {
-        this.first = first;
+    public MonoSink<Boolean> getSink() {
+        return sink;
     }
 
-    public S getSecond() {
-        return second;
-    }
-
-    public void setSecond(S second) {
-        this.second = second;
-    }
-
-    public Pair(F first, S second) {
-        this.first = first;
-        this.second = second;
+    public PendingRequest(ServerWebExchange serverWebExchange, MonoSink<Boolean> sink) {
+        this.serverWebExchange = serverWebExchange;
+        this.sink = sink;
     }
 }

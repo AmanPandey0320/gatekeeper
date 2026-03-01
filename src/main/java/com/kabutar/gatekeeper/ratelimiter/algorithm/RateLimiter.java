@@ -1,5 +1,6 @@
 package com.kabutar.gatekeeper.ratelimiter.algorithm;
 
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -10,13 +11,5 @@ public interface RateLimiter {
      * @param exchange
      * @return
      */
-    boolean allocate(ServerWebExchange exchange);
-
-    /**
-     * defines how rate limited requests will be handled
-     *
-     * @param exchange
-     * @return
-     */
-    Mono<Void> handleRateLimited(ServerWebExchange exchange);
+    Mono<Void> allocate(ServerWebExchange exchange, GatewayFilterChain chain);
 }

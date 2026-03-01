@@ -72,7 +72,6 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
         for(RateLimitedConfig.Rule rule: config.getRules()){
             pathPatterns.add(parser.parse(rule.getResourcePath()));
             rateLimiters.add(this.init(rule.getAlgorithm(),rule));
-            System.out.println("hello");
         }
     }
 

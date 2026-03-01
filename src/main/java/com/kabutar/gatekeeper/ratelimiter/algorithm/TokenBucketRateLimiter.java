@@ -9,7 +9,9 @@ import com.kabutar.gatekeeper.ratelimiter.handler.RateLimitedHandler;
 import com.kabutar.gatekeeper.util.Units;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -39,11 +41,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
         this.buckets = new HashMap<>();
 
         validateConfig();
-
-        //initialize default route bucket
-        if(limitByDimensions.isEmpty()){
-            this.buckets.put(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, new Bucket(config.getCapacity()));
-        }
+        this.buckets.put(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, new Bucket(config.getCapacity()));
     }
 
     private void validateConfig(){
@@ -81,39 +79,28 @@ public class TokenBucketRateLimiter implements RateLimiter{
 
 
     @Override
-    public boolean allocate(ServerWebExchange exchange) {
+    public Mono<Void> allocate(ServerWebExchange exchange, GatewayFilterChain chain) {
         logger.debug("Entering allocate method of Token bucket rate limiting algorithm");
 
-        // if no limit parameter is defined
-        // use default route parameter
-        if(limitByDimensions.isEmpty()){
-            if(isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION,exchange)){
-                removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
-                return true;
-            }
-            logger.debug("Ratelimited request at: {} by dimension: {}",exchange.getRequest().getURI(),RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
-            return false;
-        }
-        boolean canAllocate =  true;
-        for(String dimension:limitByDimensions){
-            canAllocate = canAllocate && isAllocateable(IdentityResolver.resolve(exchange,dimension),exchange);
-            if(!canAllocate){
-                logger.debug("Ratelimited request at: {} by dimension: {}",exchange.getRequest().getURI(),dimension);
-                return false;
-            }
+        boolean canAllocate = isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, exchange);
+        for (String dimension : limitByDimensions) {
+            canAllocate = canAllocate && isAllocateable(IdentityResolver.resolve(exchange, dimension), exchange);
         }
 
-        for(String dimension:this.limitByDimensions){
-            removeTokenFromBucket(IdentityResolver.resolve(exchange,dimension));
+        if (!canAllocate) {
+            logger.debug("Rate limited request at: {}", exchange.getRequest().getURI());
+            return handler.handle(exchange); //return the Mono, don't discard it
         }
+
+        removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
+        for (String dimension : this.limitByDimensions) {
+            removeTokenFromBucket(IdentityResolver.resolve(exchange, dimension));
+        }
+
         logger.debug("Exiting allocate method of Token bucket rate limiting algorithm");
-        return true;
+        return chain.filter(exchange); //return it — this forwards the request
     }
 
-    @Override
-    public Mono<Void> handleRateLimited(ServerWebExchange exchange) {
-        return handler.handle(exchange);
-    }
 
     private static class Bucket{
         private long tokens;

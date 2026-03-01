@@ -21,10 +21,7 @@ public class RateLimiterGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         RateLimiter rateLimiter = rateLimiterFactory.get(exchange);
-        if(!rateLimiter.allocate(exchange)){
-            return rateLimiter.handleRateLimited(exchange);
-        }
-        return chain.filter(exchange);
+        return rateLimiter.allocate(exchange,chain);
     }
 
     @Override

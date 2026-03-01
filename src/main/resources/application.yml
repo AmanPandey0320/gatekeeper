@@ -36,8 +36,7 @@ config:
         config:
           leakyBucket:
             capacity: 10
-            outFlowRate: 2
-            outFlowUnit: M
+            outFlowPerSec: 2
         resourcePath: /posts/**
         limitBy:
           - ip
