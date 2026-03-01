@@ -3,16 +3,18 @@ import time
 import aiohttp
 
 TARGET_URL = "http://localhost:8085/todos/1"
-TOTAL_REQUESTS = 1000
+TOTAL_REQUESTS = 100
 LOOPS = 5
 
 async def fire_request(session, i):
     try:
         async with session.get(TARGET_URL) as resp:
             await resp.read()
-            return True
+            if resp.status >= 400:
+                return False, resp.status
+            return True, resp.status
     except Exception as e:
-        return False
+        return False, -1
 
 async def run_loop(session, loop_num):
     start = time.time()
@@ -23,9 +25,15 @@ async def run_loop(session, loop_num):
     results = await asyncio.gather(*tasks)
     duration = time.time() - start
 
-    success = sum(results)
+    success = sum(1 for ok, _ in results if ok)
     failed = TOTAL_REQUESTS - success
-    print(f"[Loop {loop_num}] ✅ {success} | ❌ {failed} | ⏱ {duration:.3f}s | 🚀 {TOTAL_REQUESTS / duration:.1f} req/s")
+
+    status_counts = {}
+    for _, status in results:
+        status_counts[status] = status_counts.get(status, 0) + 1
+
+    status_str = " | ".join(f"HTTP {s}: {c}" for s, c in sorted(status_counts.items()))
+    print(f"[Loop {loop_num}] success: {success} | failed: {failed} | {duration:.3f}s | {TOTAL_REQUESTS / duration:.1f} req/s | {status_str}")
 
 async def main():
     connector = aiohttp.TCPConnector(
