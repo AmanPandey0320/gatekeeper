@@ -63,6 +63,7 @@ public class Rule{
     public static class Config{
         private TokenBucketConfig tokenBucket;
         private LeakyBucketConfig leakyBucket;
+        private FixedWindowConfig fixedWindow;
 
         public TokenBucketConfig getTokenBucket() {
             return tokenBucket;
@@ -80,11 +81,20 @@ public class Rule{
             this.leakyBucket = leakyBucket;
         }
 
+        public FixedWindowConfig getFixedWindow() {
+            return fixedWindow;
+        }
+
+        public void setFixedWindow(FixedWindowConfig fixedWindow) {
+            this.fixedWindow = fixedWindow;
+        }
+
         @Override
         public String toString() {
             return "Config{" +
                     "tokenBucket=" + tokenBucket +
                     ", leakyBucket=" + leakyBucket +
+                    ", fixedWindow=" + fixedWindow +
                     '}';
         }
     }

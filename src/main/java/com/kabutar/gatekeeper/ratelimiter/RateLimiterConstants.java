@@ -4,6 +4,7 @@ public class RateLimiterConstants {
     public static final class Algorithm{
         public static final String TOKEN_BUCKET = "tokenBucket";
         public static final String LEAKY_BUCKET = "leakyBucket";
+        public static final String FIXED_WINDOW_COUNTER = "fixedWindow";
     }
     public static String DEFAULT_LIMIT_DIMENSION = "default";
 
