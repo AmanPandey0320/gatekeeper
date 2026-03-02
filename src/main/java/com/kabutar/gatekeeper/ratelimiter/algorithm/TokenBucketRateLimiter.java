@@ -1,6 +1,7 @@
 package com.kabutar.gatekeeper.ratelimiter.algorithm;
 
-import com.kabutar.gatekeeper.config.RateLimitedConfig;
+import com.kabutar.gatekeeper.config.rateLimit.Rule;
+import com.kabutar.gatekeeper.config.rateLimit.TokenBucketConfig;
 import com.kabutar.gatekeeper.ratelimiter.IdentityResolver;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
@@ -11,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -23,13 +23,13 @@ public class TokenBucketRateLimiter implements RateLimiter{
     private static final Logger logger = LogManager.getLogger(TokenBucketRateLimiter.class);
 
     private RateLimitedHandler handler;
-    private RateLimitedConfig.TokenBucket config;
+    private TokenBucketConfig config;
     private List<String> limitByDimensions;
 
     private Map<String,Bucket> buckets;
 
 
-    public TokenBucketRateLimiter(RateLimitedHandler handler, RateLimitedConfig.Rule rule){
+    public TokenBucketRateLimiter(RateLimitedHandler handler, Rule rule){
         this.handler = handler;
 
         if(rule == null){

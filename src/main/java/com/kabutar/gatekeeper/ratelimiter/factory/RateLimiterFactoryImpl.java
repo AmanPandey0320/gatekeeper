@@ -1,6 +1,7 @@
 package com.kabutar.gatekeeper.ratelimiter.factory;
 
-import com.kabutar.gatekeeper.config.RateLimitedConfig;
+import com.kabutar.gatekeeper.config.rateLimit.RateLimitedConfig;
+import com.kabutar.gatekeeper.config.rateLimit.Rule;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
 import com.kabutar.gatekeeper.ratelimiter.algorithm.LeakyBucketRateLimiter;
 import com.kabutar.gatekeeper.ratelimiter.algorithm.RateLimiter;
@@ -33,7 +34,7 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
     private List<PathPattern> pathPatterns;
     private List<RateLimiter> rateLimiters;
 
-    private final Map<String, Function<RateLimitedConfig.Rule, RateLimiter>> ALGORITHM_REGISTRY;
+    private final Map<String, Function<Rule, RateLimiter>> ALGORITHM_REGISTRY;
 
     @Autowired
     public RateLimiterFactoryImpl(RateLimitedConfig rateLimitedConfig, RateLimitedHandler handler){
@@ -48,7 +49,7 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
     }
 
     // add new algorithms here without touching any existing logic
-    private Map<String, Function<RateLimitedConfig.Rule, RateLimiter>> initializeAlgorithmMap(){
+    private Map<String, Function<Rule, RateLimiter>> initializeAlgorithmMap(){
         return Map.of(
                 RateLimiterConstants.Algorithm.TOKEN_BUCKET, rule -> new TokenBucketRateLimiter(handler, rule),
                 RateLimiterConstants.Algorithm.LEAKY_BUCKET, rule -> new LeakyBucketRateLimiter(handler,rule)
@@ -69,7 +70,7 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
      * @param config
      */
     private void processRules(RateLimitedConfig config){
-        for(RateLimitedConfig.Rule rule: config.getRules()){
+        for(Rule rule: config.getRules()){
             pathPatterns.add(parser.parse(rule.getResourcePath()));
             rateLimiters.add(this.init(rule.getAlgorithm(),rule));
         }
@@ -103,7 +104,7 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
 
     @Override
     public RateLimiter init(String algorithm, Object config) {
-        RateLimitedConfig.Rule rule = (RateLimitedConfig.Rule) config;
+        Rule rule = (Rule) config;
         return Optional.ofNullable(ALGORITHM_REGISTRY.get(algorithm))
                 .map(fn -> fn.apply(rule))
                 .orElseThrow(() -> new RateLimiterException("Invalid algorithm: " + algorithm));

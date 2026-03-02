@@ -40,6 +40,16 @@ config:
         resourcePath: /posts/**
         limitBy:
           - ip
+      - id: album_rate_limiting
+        algorithm: fixedWindow
+        config:
+          fixedWindow:
+            timeWindow: 1
+            timeUnit: S
+            counter: 20
+        resourcePath: /albums/**
+        limitBy:
+          - ip
   protectedRoutes:
     enabled: false
     routes:

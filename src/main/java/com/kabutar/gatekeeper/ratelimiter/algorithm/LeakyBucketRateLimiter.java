@@ -1,6 +1,8 @@
 package com.kabutar.gatekeeper.ratelimiter.algorithm;
 
-import com.kabutar.gatekeeper.config.RateLimitedConfig;
+import com.kabutar.gatekeeper.config.rateLimit.LeakyBucketConfig;
+import com.kabutar.gatekeeper.config.rateLimit.RateLimitedConfig;
+import com.kabutar.gatekeeper.config.rateLimit.Rule;
 import com.kabutar.gatekeeper.ratelimiter.IdentityResolver;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
@@ -51,7 +53,7 @@ public class LeakyBucketRateLimiter implements RateLimiter {
     private static final Logger logger = LogManager.getLogger(LeakyBucketRateLimiter.class);
 
     private final RateLimitedHandler handler;
-    private final RateLimitedConfig.LeakyBucket config;
+    private final LeakyBucketConfig config;
     private final List<String> limitByDimensions;
 
     /*
@@ -61,7 +63,7 @@ public class LeakyBucketRateLimiter implements RateLimiter {
      */
     private final Map<String, Bucket> buckets;
 
-    public LeakyBucketRateLimiter(RateLimitedHandler handler, RateLimitedConfig.Rule rule) {
+    public LeakyBucketRateLimiter(RateLimitedHandler handler, Rule rule) {
         this.handler = handler;
         if (rule == null) rule = DefaultTokenRule.getRule();
         this.config = rule.getConfig().getLeakyBucket();
