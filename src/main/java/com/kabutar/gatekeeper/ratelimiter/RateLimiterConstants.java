@@ -6,7 +6,7 @@ public class RateLimiterConstants {
         public static final String LEAKY_BUCKET = "leakyBucket";
         public static final String FIXED_WINDOW_COUNTER = "fixedWindow";
     }
-    public static String DEFAULT_LIMIT_DIMENSION = "default";
+    public static String DEFAULT_LIMIT_IDENTITY = "default";
 
     public static class  TokenBucket {
         public static long DEFAULT_CAPACITY = 1000;

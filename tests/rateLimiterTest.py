@@ -2,9 +2,10 @@ import asyncio
 import time
 import aiohttp
 
-TARGET_URL = "http://localhost:8085/todos/1"
-TOTAL_REQUESTS = 100
+TARGET_URL = "http://localhost:8085/albums/1"
+TOTAL_REQUESTS = 20
 LOOPS = 5
+DELAY_BETWEEN_LOOPS=1 #in sec
 
 async def fire_request(session, i):
     try:

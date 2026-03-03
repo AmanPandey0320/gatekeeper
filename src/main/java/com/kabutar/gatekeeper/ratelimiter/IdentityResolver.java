@@ -21,6 +21,6 @@ public class IdentityResolver {
                 return "apiKey=" + (apiKey != null ? apiKey : "unknown");
             }
         }
-        return RateLimiterConstants.DEFAULT_LIMIT_DIMENSION;
+        return RateLimiterConstants.DEFAULT_LIMIT_IDENTITY;
     }
 }

@@ -41,7 +41,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
         this.buckets = new HashMap<>();
 
         validateConfig();
-        this.buckets.put(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, new Bucket(config.getCapacity()));
+        this.buckets.put(RateLimiterConstants.DEFAULT_LIMIT_IDENTITY, new Bucket(config.getCapacity()));
     }
 
     private void validateConfig(){
@@ -82,7 +82,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
     public Mono<Void> allocate(ServerWebExchange exchange, GatewayFilterChain chain) {
         logger.debug("Entering allocate method of Token bucket rate limiting algorithm");
 
-        boolean canAllocate = isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION, exchange);
+        boolean canAllocate = isAllocateable(RateLimiterConstants.DEFAULT_LIMIT_IDENTITY, exchange);
         for (String dimension : limitByDimensions) {
             canAllocate = canAllocate && isAllocateable(IdentityResolver.resolve(exchange, dimension), exchange);
         }
@@ -92,7 +92,7 @@ public class TokenBucketRateLimiter implements RateLimiter{
             return handler.handle(exchange); //return the Mono, don't discard it
         }
 
-        removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
+        removeTokenFromBucket(RateLimiterConstants.DEFAULT_LIMIT_IDENTITY);
         for (String dimension : this.limitByDimensions) {
             removeTokenFromBucket(IdentityResolver.resolve(exchange, dimension));
         }

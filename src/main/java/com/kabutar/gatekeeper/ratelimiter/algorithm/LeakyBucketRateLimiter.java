@@ -1,7 +1,6 @@
 package com.kabutar.gatekeeper.ratelimiter.algorithm;
 
 import com.kabutar.gatekeeper.config.rateLimit.LeakyBucketConfig;
-import com.kabutar.gatekeeper.config.rateLimit.RateLimitedConfig;
 import com.kabutar.gatekeeper.config.rateLimit.Rule;
 import com.kabutar.gatekeeper.ratelimiter.IdentityResolver;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
@@ -72,7 +71,7 @@ public class LeakyBucketRateLimiter implements RateLimiter {
         validateConfig();
         // Initialize the default bucket that applies globally to all requests
         // regardless of any per-dimension limiting.
-        init(RateLimiterConstants.DEFAULT_LIMIT_DIMENSION);
+        init(RateLimiterConstants.DEFAULT_LIMIT_IDENTITY);
     }
 
     /**
@@ -180,6 +179,7 @@ public class LeakyBucketRateLimiter implements RateLimiter {
         }).flatMap(accepted -> {
             if (accepted) {
                 // Request was drained by the leaker — forward to the next filter/downstream service
+                logger.debug("Exiting allocate for: {}", exchange.getRequest().getURI().getPath());
                 return chain.filter(mutableExchange);
             }
             // Request was rejected — handler already wrote the 429 response, nothing more to do
@@ -200,7 +200,7 @@ public class LeakyBucketRateLimiter implements RateLimiter {
      */
     private String buildCompositeKey(ServerWebExchange exchange) {
         if (limitByDimensions == null || limitByDimensions.isEmpty()) {
-            return RateLimiterConstants.DEFAULT_LIMIT_DIMENSION;
+            return RateLimiterConstants.DEFAULT_LIMIT_IDENTITY;
         }
         return limitByDimensions.stream()
                 .map(dim -> IdentityResolver.resolve(exchange, dim))
