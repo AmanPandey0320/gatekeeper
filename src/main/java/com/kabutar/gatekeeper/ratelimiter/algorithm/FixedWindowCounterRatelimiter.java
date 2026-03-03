@@ -66,7 +66,6 @@ public class FixedWindowCounterRatelimiter implements RateLimiter{
         logger.debug("Entering allocate method of {} for path: {}",
                 FixedWindowCounterRatelimiter.class.getCanonicalName(),
                 exchange.getRequest().getPath());
-        //TODO: implement here
         HttpHeaders mutableHeaders = new HttpHeaders();
         mutableHeaders.putAll(exchange.getRequest().getHeaders());
 
@@ -83,6 +82,8 @@ public class FixedWindowCounterRatelimiter implements RateLimiter{
                 .build();
         return Mono.create((MonoSink<Boolean> sink) -> {
             boolean isAccepted = true;
+
+            int successTill = -1;
             for(String dimension: this.limitBy){
                 String identity = IdentityResolver.resolve(exchange,dimension);
                 if(!this.windowMap.containsKey(identity)){
@@ -90,9 +91,19 @@ public class FixedWindowCounterRatelimiter implements RateLimiter{
                 }
                 Window window = this.windowMap.get(identity);
                 isAccepted = isAccepted && window.tryIncrement();
+
+                if(isAccepted){
+                    successTill++;
+                }else{
+                    break;
+                }
             }
             if(!isAccepted){
                 logger.debug("COUNTER FULL - dropping: {}", exchange.getRequest().getURI().getPath());
+                for(int i=0;i<=successTill;i++){
+                    String identity = IdentityResolver.resolve(exchange,this.limitBy.get(i));
+                    this.windowMap.get(identity).restore();
+                }
                 handler.handle(exchange)
                         .subscribe(null, sink::error, () -> sink.success(false));
             }else{
@@ -135,8 +146,8 @@ public class FixedWindowCounterRatelimiter implements RateLimiter{
             return currentCount.incrementAndGet() <= counter;
         }
 
-        public void shutdown() {
-            scheduler.shutdown();
+        public void restore() {
+            currentCount.decrementAndGet();
         }
     }
 }
