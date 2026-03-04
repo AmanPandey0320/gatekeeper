@@ -3,11 +3,8 @@ package com.kabutar.gatekeeper.ratelimiter.factory;
 import com.kabutar.gatekeeper.config.rateLimit.RateLimitedConfig;
 import com.kabutar.gatekeeper.config.rateLimit.Rule;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterException;
-import com.kabutar.gatekeeper.ratelimiter.algorithm.FixedWindowCounterRatelimiter;
-import com.kabutar.gatekeeper.ratelimiter.algorithm.LeakyBucketRateLimiter;
-import com.kabutar.gatekeeper.ratelimiter.algorithm.RateLimiter;
+import com.kabutar.gatekeeper.ratelimiter.algorithm.*;
 import com.kabutar.gatekeeper.ratelimiter.RateLimiterConstants;
-import com.kabutar.gatekeeper.ratelimiter.algorithm.TokenBucketRateLimiter;
 import com.kabutar.gatekeeper.ratelimiter.handler.RateLimitedHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +51,8 @@ public class RateLimiterFactoryImpl implements RateLimiterFactory {
         return Map.of(
                 RateLimiterConstants.Algorithm.TOKEN_BUCKET, rule -> new TokenBucketRateLimiter(handler, rule),
                 RateLimiterConstants.Algorithm.LEAKY_BUCKET, rule -> new LeakyBucketRateLimiter(handler,rule),
-                RateLimiterConstants.Algorithm.FIXED_WINDOW_COUNTER, rule -> new FixedWindowCounterRatelimiter(handler,rule)
+                RateLimiterConstants.Algorithm.FIXED_WINDOW_COUNTER, rule -> new FixedWindowCounterRatelimiter(handler,rule),
+                RateLimiterConstants.Algorithm.SLIDING_WINDOW_COUNTER, rule -> new SlidingWindowCounterRateLimiter(handler,rule)
                 //add new rate limited algorithms here
         );
     }

@@ -5,6 +5,7 @@ public class RateLimiterConstants {
         public static final String TOKEN_BUCKET = "tokenBucket";
         public static final String LEAKY_BUCKET = "leakyBucket";
         public static final String FIXED_WINDOW_COUNTER = "fixedWindow";
+        public static final String SLIDING_WINDOW_COUNTER = "slidingWindow";
     }
     public static String DEFAULT_LIMIT_IDENTITY = "default";
 
