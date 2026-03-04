@@ -64,6 +64,7 @@ public class Rule{
         private TokenBucketConfig tokenBucket;
         private LeakyBucketConfig leakyBucket;
         private FixedWindowConfig fixedWindow;
+        private SlidingWindowConfig slidingWindow;
 
         public TokenBucketConfig getTokenBucket() {
             return tokenBucket;
@@ -89,12 +90,21 @@ public class Rule{
             this.fixedWindow = fixedWindow;
         }
 
+        public SlidingWindowConfig getSlidingWindow() {
+            return slidingWindow;
+        }
+
+        public void setSlidingWindow(SlidingWindowConfig slidingWindow) {
+            this.slidingWindow = slidingWindow;
+        }
+
         @Override
         public String toString() {
             return "Config{" +
                     "tokenBucket=" + tokenBucket +
                     ", leakyBucket=" + leakyBucket +
                     ", fixedWindow=" + fixedWindow +
+                    ", slidingWindow=" + slidingWindow +
                     '}';
         }
     }
