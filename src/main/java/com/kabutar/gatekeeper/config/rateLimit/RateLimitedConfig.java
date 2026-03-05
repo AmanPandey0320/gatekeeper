@@ -10,6 +10,7 @@ import java.util.List;
 public class RateLimitedConfig {
     private boolean enabled;
     private String algorithm;
+    private boolean enableDistributedMode;
     private String strategy;
     private List<Rule> rules;
 
@@ -45,14 +46,22 @@ public class RateLimitedConfig {
         this.strategy = strategy;
     }
 
+    public boolean isEnableDistributedMode() {
+        return enableDistributedMode;
+    }
+
+    public void setEnableDistributedMode(boolean enableDistributedMode) {
+        this.enableDistributedMode = enableDistributedMode;
+    }
+
     @Override
     public String toString() {
         return "RateLimitedConfig{" +
                 "enabled=" + enabled +
                 ", algorithm='" + algorithm + '\'' +
+                ", enableDistributedMode=" + enableDistributedMode +
                 ", strategy='" + strategy + '\'' +
                 ", rules=" + rules +
                 '}';
     }
-
 }

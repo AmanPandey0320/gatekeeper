@@ -18,6 +18,7 @@ spring:
 config:
   rateLimited:
     enabled: true
+    enableDistributedMode: false
     algorithm: tokenBucket
     strategy: drop
     rules:
