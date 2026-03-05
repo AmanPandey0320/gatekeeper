@@ -123,9 +123,12 @@ public class SlidingWindowCounterRateLimiter implements RateLimiter {
         });
     }
 
-    // -------------------------------------------------------------------------
-    // Inner Window class — tracks previous + current fixed windows
-    // -------------------------------------------------------------------------
+
+    /**
+     * -------------------------------------------------------------------------
+     * Inner Window class — tracks previous + current fixed windows
+     * -------------------------------------------------------------------------
+    */
     private static class Window {
         private final int limit;
         private final long periodSeconds;
@@ -154,7 +157,7 @@ public class SlidingWindowCounterRateLimiter implements RateLimiter {
             // Roll window forward every `periodSeconds`
             scheduler.scheduleAtFixedRate(
                     this::rollover,
-                    periodSeconds,   // first rollover after one full window
+                    periodSeconds,
                     periodSeconds,
                     TimeUnit.SECONDS
             );
