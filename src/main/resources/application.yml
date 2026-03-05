@@ -50,6 +50,16 @@ config:
         resourcePath: /albums/**
         limitBy:
           - ip
+      - id: comment_rate_limiting
+        algorithm: slidingWindow
+        config:
+          slidingWindow:
+            timeWindow: 1
+            timeUnit: S
+            counter: 30
+        resourcePath: /comments/**
+        limitBy:
+          - ip
   protectedRoutes:
     enabled: false
     routes:
