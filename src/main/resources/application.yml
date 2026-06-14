@@ -10,8 +10,12 @@ spring:
         uri-encoding: UTF-8
         strict-uri-validation: false
       routes:
+        - id: api_v1
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/v1/**
         - id: default
-          uri: https://jsonplaceholder.typicode.com
+          uri: http://localhost:3000
           predicates:
             - Path=/**
 
@@ -22,43 +26,14 @@ config:
     algorithm: tokenBucket
     strategy: drop
     rules:
-      - id: todo_rate_limiting
+      - id: api_rate_limiting_rule
         algorithm: tokenBucket
         config:
           tokenBucket:
             capacity: 10
             refillRate: 2
-            refillUnit: M
-        resourcePath: /todos/**
-        limitBy:
-          - ip
-      - id: post_rate_limiting
-        algorithm: leakyBucket
-        config:
-          leakyBucket:
-            capacity: 10
-            outFlowPerSec: 2
-        resourcePath: /posts/**
-        limitBy:
-          - ip
-      - id: album_rate_limiting
-        algorithm: fixedWindow
-        config:
-          fixedWindow:
-            timeWindow: 1
-            timeUnit: S
-            counter: 20
-        resourcePath: /albums/**
-        limitBy:
-          - ip
-      - id: comment_rate_limiting
-        algorithm: slidingWindow
-        config:
-          slidingWindow:
-            timeWindow: 1
-            timeUnit: S
-            counter: 30
-        resourcePath: /comments/**
+            refillUnit: S
+        resourcePath: /api/v1/**
         limitBy:
           - ip
   protectedRoutes:
